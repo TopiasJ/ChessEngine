@@ -1,9 +1,10 @@
 from evaluator import Evaluator
 from Chessnut import Game
+from Algorithm import Algorithm
 import threading
 import copy
 
-class NegaMax(object):
+class NegaMax(Algorithm):
     ev = Evaluator()
     scores = []
     def getBestmove(self, game):
@@ -11,11 +12,11 @@ class NegaMax(object):
         self.scores = []
         threads = []
         for move in moves:
-            testGame = Game(fen=game.get_fen())
+            testGame = Game(fen=game.get_fen(), validate=False)
             testGame.apply_move(move)
 
             #self.calcOneMove(move, testGame.get_fen())
-            t = threading.Thread(target = self.calcOneMove, args=(move, testGame.get_fen(),))
+            t = threading.Thread(target = self.calcOneMove, args=(move, testGame,))
             threads.append(t)
             t.start()
         
@@ -28,14 +29,13 @@ class NegaMax(object):
 
     def calcOneMove(self, move, fen):
             score = self.negaMax(fen)
-            print(move + ' ' + str(score))
+            #print(move + ' ' + str(score))
             self.scores.append((score,move))
             return
 
 
 
-    def negaMax(self, fen, depth=2):
-        game = Game(fen=fen)
+    def negaMax(self, game, depth=2):
         if ( depth == 0 ):
             return self.ev.evaluate(str(game.board))
         max = -999999
@@ -43,9 +43,9 @@ class NegaMax(object):
 
         for move in moves:
             #print("testing move" + move + " depth:" + str(depth))
-            testGame = Game(fen=game.get_fen())
+            testGame = Game(fen=game.get_fen(), validate=False)
             testGame.apply_move(move)
-            score = -self.negaMax(testGame.get_fen(), depth = depth-1 )
+            score = -self.negaMax(testGame, depth = depth-1 )
             if score > max:
                 max = score
         return max

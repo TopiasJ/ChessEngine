@@ -2,14 +2,16 @@
 from Chessnut import Game
 from evaluator import Evaluator
 from negaMaxAlgorithm import NegaMax
-#from alphaBetaAlgorithm import AlphaBetaAlgorithm
+from alphaBetaAlgorithm import AlphaBeta
+import time
 
 #main Loop
 def main():
     chessgame = Game()
     ev = Evaluator()
-    negaMax = NegaMax()
-    while(True):
+    #alg = NegaMax()
+    alg = AlphaBeta()
+    while(chessgame.status != chessgame.CHECKMATE or chessgame.status != chessgame.STALEMATE):
         print(chessgame.move_history)
         visualizeBoard(str(chessgame.board))
         print(chessgame.get_moves())
@@ -18,12 +20,21 @@ def main():
         
         move = input()
         chessgame.apply_move(move)
-
         visualizeBoard(str(chessgame.board))
+        if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
+            break
         #ai turn
-        aimove = negaMax.getBestmove(chessgame)
-        print("ai move: " + aimove)
+        start_time = time.time()
+        aimove = alg.getBestmove(chessgame)
+        elapsed_time = time.time() - start_time
+        print('timeelapsed:' + str(elapsed_time) +" ai move: " + aimove)
         chessgame.apply_move(aimove)
+    if chessgame.status == chessgame.CHECKMATE:
+        print('CHECKMATE')
+    elif chessgame.status == chessgame.STALEMATE:
+        print('STALEMATE')
+    print(chessgame.status)
+
 
 def visualizeBoard(board):
     boardRows = board.split('/')
