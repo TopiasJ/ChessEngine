@@ -48,16 +48,14 @@ class AlphaBeta(Algorithm):
             if testGame.state.player == 'w':
                 score = self.alphaBetaMax(testGame, -999999,999999, depth)
             else:
-                score = self.alphaBetaMin(testGame, -999999,999999, depth)
-            #print(move + ' ' + str(score))
-            #if(score == 999999 or score == -999999): #STALEMATE
-             #   self.scores.append((0,move))
-            #else:    
+                score = self.alphaBetaMin(testGame, -999999,999999, depth)   
             self.scores.append((score,move))
             return    
 
     def alphaBetaMax(self, game, alpha, beta, depthleft):
         moves = game.get_moves()
+        if not moves:
+            depthleft = 0
         if depthleft == 0:
             return self.ev.evaluate(str(game.board))
         
@@ -74,6 +72,8 @@ class AlphaBeta(Algorithm):
 
     def alphaBetaMin(self,game, alpha, beta, depthleft ):
         moves = game.get_moves()
+        if not moves:
+            depthleft = 0
         if ( depthleft == 0 ):
             return self.ev.evaluate(str(game.board))
         for move in moves:
