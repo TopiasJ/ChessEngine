@@ -1,4 +1,5 @@
 from evaluator import Evaluator
+import random
 class EvaluatorGene(Evaluator):
     pawnValue = 100
     rookValue = 500
@@ -32,12 +33,18 @@ class EvaluatorGene(Evaluator):
     def saveValuesFile(self):
         return
 
-    def randomizeInitialValues(self):
-        return
+    def randomizeInitialValues(self, variance = 0.3):
+        self.rookValue = random.randint(self.rookValue - self.rookValue*variance, self.rookValue + self.rookValue*variance)
+        self.knighValue = random.randint(self.knighValue - self.knighValue*variance, self.knighValue + self.knighValue*variance)
+        self.bishopValue = random.randint(self.bishopValue - self.bishopValue*variance, self.bishopValue + self.bishopValue*variance)
+        self.queenValue = random.randint(self.queenValue - self.queenValue*variance, self.queenValue + self.queenValue*variance)
+        return self
     
     def crossover(self, anotherGene):
+        
         return
     
     def mutation(self):
         return
 
+    
