@@ -4,6 +4,7 @@ from evaluator import Evaluator
 from negaMaxAlgorithm import NegaMax
 from alphaBetaAlgorithm import AlphaBeta
 from boardVisualizer import Visualizer
+from tournament import Tournament
 import time
 
 #main Loop
@@ -55,6 +56,13 @@ def main():
     if chessgame.status == chessgame.STALEMATE:
         print('STALEMATE')
 
+def tournament():
+    tournament = Tournament()
+    tournament.startTournament(6)
+
+
+
+
 def test():
     
     chessgame = Game('8/8/k7/2K5/8/8/8/1R6 w - - 0 1') ##white mate 5?
@@ -73,6 +81,7 @@ def test():
 
 
 #run the software
-main()
-#test()
-#tournament()
+if __name__ == '__main__': 
+    #main()
+    #test()
+    tournament()
