@@ -6,30 +6,34 @@ from negaMaxAlgorithm import NegaMax
 from alphaBetaAlgorithm import AlphaBeta
 from boardVisualizer import Visualizer
 
+import os
 import random
 import os.path
-
+import datetime 
 
 
 class Tournament(object):
     tournamentWinners = []
     
-    def startTournament(self, newGenesCount):
+    def startTournament(self, wantedGenesCount, depth = 2):
+        oldGenes=self.loadOldGenes()
         processList = []
         self.tournamentWinners = []
-        playerGenes = self.initializeNewGenes(amount=newGenesCount, variance=0.3)
-        opponents = self.randomizeOpponents(playerGenes)
-            
+        oldGenAmount = len(oldGenes)
 
-        
+        playerGenes = self.initializeNewGenes(amount=(oldGenAmount-wantedGenesCount), variance=0.3)
+        playerGenes.extend(oldGenes)
+
+        opponents = self.randomizeOpponents(playerGenes)
+
         for x in opponents:
-            p = Process(target=self.playChessMatch, args=(x,))
+            p = Process(target=self.playChessMatch, args=(x,depth,))
             processList.append(p)
             p.start()
         
         for process in processList:
             process.join()
-        self.saveWinners(self.tournamentWinners)
+        #self.saveWinners(self.tournamentWinners)
         return
 
     def initializeNewGenes(self, amount, variance):
@@ -49,6 +53,7 @@ class Tournament(object):
                 newborns.append(winner.crossover(previous))
                 previous = None
         return newborns
+
     def saveWinners(self, winners):
         #exists = os.path.isfile('tournamentWinners.txt')
         f = open("tournamentWinners.txt", "a")
@@ -56,6 +61,20 @@ class Tournament(object):
             f.write(str(winner.getPieceValue('R')) +','+ str(winner.getPieceValue('N')) +','+ str(winner.getPieceValue('B'))+','+ str(winner.getPieceValue('Q')) + '\n' )
         f.close()
         return
+
+    def loadOldGenes(self):
+        oldies = []
+        file  = open("tournamentWinners.txt", "r")
+        lines = file.readlines()
+        file.close()
+        for line in lines:
+            l = line.split(',')
+            gene = EvaluatorGene()
+            gene.loadValues(l[0],l[1],l[2],l[3])
+            oldies.append(gene)
+        current_time = datetime.datetime.now()
+        os.rename('tournamentWinners.txt', 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt')
+        return oldies
 
     def randomizeOpponents(self, players):
         previous = None
@@ -82,8 +101,10 @@ class Tournament(object):
             chessgame.apply_move(move)
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
-                    print('WHITE WON')
-                    return self.tournamentWinners.append(opponents[0])
+                    print('WHITE WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                    self.saveWinners([opponents[0]])
+                    return
+                    # return self.tournamentWinners.append(opponents[0])
                 break
 
 
@@ -97,11 +118,15 @@ class Tournament(object):
 
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
-                    print('BLACK WON')
-                    return self.tournamentWinners.append(opponents[1])
+                    print('BLACK WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                    self.saveWinners([opponents[1]])
+                    return
+                    #return self.tournamentWinners.append(opponents[1])
                 break
-            if(movecount > 10):
-                return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
+            if(movecount > 50):
+                self.saveWinners([self.getWinnerByPieceValue(opponents, chessgame.board)])
+                return 
+                #return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
                 
         #END OF MAIN LOOP
 
@@ -110,15 +135,19 @@ class Tournament(object):
         visualiser.visualizeBoard(str(chessgame.board))
         if chessgame.status == chessgame.STALEMATE:
             print('STALEMATE')
-        return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
+
+        self.saveWinners([self.getWinnerByPieceValue(opponents, chessgame.board)])   
+        return
+        #return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
 
 
     def getWinnerByPieceValue(self, opponents, board):
         ev = Evaluator()
         evaluation = ev.evaluate(str(board))
         if(evaluation < 0):
-            print('BLACK WON!!!')
+            print('BLACK WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! by evaluation')
             return opponents[1] #black won
         else:
-            print('WHITE WON!!!')
+            print('WHITE WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! by evaluation')
             return opponents[0] #white won
+    

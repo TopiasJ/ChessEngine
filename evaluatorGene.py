@@ -30,8 +30,6 @@ class EvaluatorGene(Evaluator):
             return value 
         else:
             return value * -1
-    def saveValuesFile(self):
-        return
 
     def randomizeInitialValues(self, variance = 0.3):
         self.rookValue = random.randint(self.rookValue - self.rookValue*variance, self.rookValue + self.rookValue*variance)
@@ -40,6 +38,13 @@ class EvaluatorGene(Evaluator):
         self.queenValue = random.randint(self.queenValue - self.queenValue*variance, self.queenValue + self.queenValue*variance)
         return self
     
+    def loadValues(self,r,n,b,q):
+        self.rookValue = r
+        self.knighValue = n
+        self.bishopValue = b
+        self.queenValue = q
+        return 
+        
     def crossover(self, anotherGene):
         
         return
