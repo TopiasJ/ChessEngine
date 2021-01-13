@@ -32,10 +32,10 @@ class EvaluatorGene(Evaluator):
             return value * -1
 
     def randomizeInitialValues(self, variance = 0.3):
-        self.rookValue = random.randint(self.rookValue - self.rookValue*variance, self.rookValue + self.rookValue*variance)
-        self.knighValue = random.randint(self.knighValue - self.knighValue*variance, self.knighValue + self.knighValue*variance)
-        self.bishopValue = random.randint(self.bishopValue - self.bishopValue*variance, self.bishopValue + self.bishopValue*variance)
-        self.queenValue = random.randint(self.queenValue - self.queenValue*variance, self.queenValue + self.queenValue*variance)
+        self.rookValue = random.randint(self.rookValue - int(self.rookValue*variance), self.rookValue + int(self.rookValue*variance))
+        self.knighValue = random.randint(self.knighValue - int(self.knighValue*variance), self.knighValue + int(self.knighValue*variance))
+        self.bishopValue = random.randint(self.bishopValue - int(self.bishopValue*variance), self.bishopValue + int(self.bishopValue*variance))
+        self.queenValue = random.randint(self.queenValue - int(self.queenValue*variance), self.queenValue + int(self.queenValue*variance))
         return self
     
     def loadValues(self,r,n,b,q):

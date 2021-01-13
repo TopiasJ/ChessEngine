@@ -58,9 +58,10 @@ def main():
 
 def tournament():
     tournament = Tournament()
+    start_time = time.time()
     tournament.startTournament(8)
-
-
+    elapsed_time = time.time() - start_time
+    print('timeelapsed for whole tournament:' + str(elapsed_time))
 
 
 def test():

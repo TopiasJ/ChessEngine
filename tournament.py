@@ -27,6 +27,7 @@ class Tournament(object):
         opponents = self.randomizeOpponents(playerGenes)
 
         for x in opponents:
+            #self.playBestOfMatch(x,depth)
             p = Process(target=self.playBestOfMatch, args=(x,depth,))
             processList.append(p)
             p.start()
@@ -72,10 +73,10 @@ class Tournament(object):
         file.close()
         for line in lines:
             if(line != '\n'):
-                line.replace("\n", "")
+                line = line.replace("\n", "")
                 l = line.split(',')
                 gene = EvaluatorGene()
-                gene.loadValues(l[0],l[1],l[2],l[3])
+                gene.loadValues(int(l[0]),int(l[1]),int(l[2]),int(l[3]))
                 oldies.append(gene)
         current_time = datetime.datetime.now()
         os.rename('tournamentWinners.txt', 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt')
@@ -102,7 +103,7 @@ class Tournament(object):
         
         ##decider opponent[0] as white
         if(score == 0):
-            self.playChessMatch(opponents, calcDepth-1, True)
+            score += self.playChessMatch(opponents, calcDepth-1, True)
 
         if(score > 0):
             self.saveWinners([opponents[0]])
