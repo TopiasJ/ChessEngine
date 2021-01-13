@@ -15,7 +15,7 @@ import datetime
 class Tournament(object):
     tournamentWinners = []
     
-    def startTournament(self, wantedGenesCount, depth = 2):
+    def startTournament(self, wantedGenesCount, depth = 3):
         oldGenes=self.loadOldGenes()
         processList = []
         self.tournamentWinners = []
@@ -27,7 +27,7 @@ class Tournament(object):
         opponents = self.randomizeOpponents(playerGenes)
 
         for x in opponents:
-            p = Process(target=self.playChessMatch, args=(x,depth,))
+            p = Process(target=self.playBestOfMatch, args=(x,depth,))
             processList.append(p)
             p.start()
         
@@ -72,6 +72,7 @@ class Tournament(object):
         file.close()
         for line in lines:
             if(line != '\n'):
+                line.replace("\n", "")
                 l = line.split(',')
                 gene = EvaluatorGene()
                 gene.loadValues(l[0],l[1],l[2],l[3])
@@ -92,32 +93,55 @@ class Tournament(object):
                 previous = None
         return opponents
 
-    def playChessMatch(self, opponents, calcDepth = 3):
+    def playBestOfMatch(self, opponents, calcDepth = 3, bestOf = 3):
+        score = 0
+        ##opponent[0] as white
+        score = self.playChessMatch(opponents, calcDepth, True)
+        ##opponent[1] as white
+        score += self.playChessMatch(opponents, calcDepth, False)
+        
+        ##decider opponent[0] as white
+        if(score == 0):
+            self.playChessMatch(opponents, calcDepth-1, True)
+
+        if(score > 0):
+            self.saveWinners([opponents[0]])
+        else:
+            self.saveWinners([opponents[1]])
+        return
+
+    def playChessMatch(self, opponents, calcDepth = 3, playerOneWhite = True):
         chessgame = Game()
         visualiser = Visualizer()
         alg = AlphaBeta()
         movecount = 0
-        score = 0
+        if(playerOneWhite):
+            whitePlayer = opponents[0]
+            blackPlayer = opponents[1]
+        else:
+            whitePlayer = opponents[0]
+            blackPlayer = opponents[1]
 
         #MAIN LOOP
         while(True):
             #WHITE TO MOVE
             #print('white moving next')
-            move = alg.getBestmove(chessgame, calcDepth)        
-            chessgame.apply_move(move)
+            aimove = alg.getBestmove(chessgame, calcDepth, whitePlayer)        
+            chessgame.apply_move(aimove)
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
                     print('WHITE WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                    score += 1
-                    self.saveWinners([opponents[0]])
-                    return
-                    # return self.tournamentWinners.append(opponents[0])
+                    if(playerOneWhite):
+                        return 1
+                    else:
+                        return -1
+                    #self.saveWinners([opponents[0]])
                 break
-
+                    # return self.tournamentWinners.append(opponents[0])
 
             #BLACK TO MOVE
             #print('black moving next')
-            aimove = alg.getBestmove(chessgame,calcDepth)
+            aimove = alg.getBestmove(chessgame,calcDepth, blackPlayer)
             chessgame.apply_move(aimove)
             movecount += 1
             visualiser.visualizeBoard(str(chessgame.board))
@@ -126,13 +150,21 @@ class Tournament(object):
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
                     print('BLACK WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                    self.saveWinners([opponents[1]])
-                    return
+                    if(not playerOneWhite):
+                        return 1
+                    else:
+                        return -1
+                    
+                    #self.saveWinners([opponents[1]])
                     #return self.tournamentWinners.append(opponents[1])
                 break
             if(movecount > 50):
-                self.saveWinners([self.getWinnerByPieceValue(opponents, chessgame.board)])
-                return 
+                winner = self.getWinnerByPieceValue(chessgame.board)
+                if(playerOneWhite):
+                    return winner
+                else:
+                    return winner*-1
+                #self.saveWinners([self.getWinnerByPieceValue(opponents, chessgame.board)])
                 #return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
                 
         #END OF MAIN LOOP
@@ -142,19 +174,24 @@ class Tournament(object):
         visualiser.visualizeBoard(str(chessgame.board))
         if chessgame.status == chessgame.STALEMATE:
             print('STALEMATE')
+        
+        winner = self.getWinnerByPieceValue(chessgame.board)
+        if(playerOneWhite):
+            return winner
+        else:
+            return winner*-1
 
-        self.saveWinners([self.getWinnerByPieceValue(opponents, chessgame.board)])   
-        return
+        #self.saveWinners([self.getWinnerByPieceValue(opponents, chessgame.board)])   
         #return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
 
 
-    def getWinnerByPieceValue(self, opponents, board):
+    def getWinnerByPieceValue(self, board):
         ev = Evaluator()
         evaluation = ev.evaluate(str(board))
         if(evaluation < 0):
             print('BLACK WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! by evaluation')
-            return opponents[1] #black won
+            return -1 #black won
         else:
             print('WHITE WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! by evaluation')
-            return opponents[0] #white won
+            return 1 #white won
     
