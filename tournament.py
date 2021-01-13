@@ -69,43 +69,56 @@ class Tournament(object):
                 previous = None
         return opponents
 
-    def playChessMatch(self, opponents, calcDepth = 2):
-
-
+    def playChessMatch(self, opponents, calcDepth = 3):
         chessgame = Game()
-        #ev = Evaluator()
-        #visualiser = Visualizer()
+        visualiser = Visualizer()
         alg = AlphaBeta()
-
+        movecount = 0
         #MAIN LOOP
         while(True):
-
             #WHITE TO MOVE
             #print('white moving next')
-            move = alg.getBestmove(chessgame, 2)        
+            move = alg.getBestmove(chessgame, calcDepth)        
             chessgame.apply_move(move)
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
+                    print('WHITE WON')
                     return self.tournamentWinners.append(opponents[0])
                 break
 
 
             #BLACK TO MOVE
             #print('black moving next')
-            aimove = alg.getBestmove(chessgame,2)
+            aimove = alg.getBestmove(chessgame,calcDepth)
             chessgame.apply_move(aimove)
+            movecount += 1
+            visualiser.visualizeBoard(str(chessgame.board))
+            print('move count: ' + str(movecount))
 
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
+                    print('BLACK WON')
                     return self.tournamentWinners.append(opponents[1])
                 break
+            if(movecount > 10):
+                return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
+                
         #END OF MAIN LOOP
 
         #final visualisation
-        #visualiser.visualizeBoard(str(chessgame.board))
+        
+        visualiser.visualizeBoard(str(chessgame.board))
         if chessgame.status == chessgame.STALEMATE:
             print('STALEMATE')
+        return self.tournamentWinners.append(self.getWinnerByPieceValue(opponents, chessgame.board))
 
 
-
-
+    def getWinnerByPieceValue(self, opponents, board):
+        ev = Evaluator()
+        evaluation = ev.evaluate(str(board))
+        if(evaluation < 0):
+            print('BLACK WON!!!')
+            return opponents[1] #black won
+        else:
+            print('WHITE WON!!!')
+            return opponents[0] #white won

@@ -58,7 +58,7 @@ def main():
 
 def tournament():
     tournament = Tournament()
-    tournament.startTournament(6)
+    tournament.startTournament(8)
 
 
 
