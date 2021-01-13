@@ -98,17 +98,20 @@ class Tournament(object):
         score = 0
         ##opponent[0] as white
         score = self.playChessMatch(opponents, calcDepth, True)
+        print('Score: ' +str(score)) 
         ##opponent[1] as white
         score += self.playChessMatch(opponents, calcDepth, False)
-        
+        print('Score: ' +str(score))
         ##decider opponent[0] as white
         if(score == 0):
             score += self.playChessMatch(opponents, calcDepth-1, True)
-
+            print('AFTER DECIDER Score: ' +str(score))
         if(score > 0):
             self.saveWinners([opponents[0]])
+            print('player 1 won' + str(opponents[0].getPieceValue('R')) +','+ str(opponents[0].getPieceValue('N')) +','+ str(opponents[0].getPieceValue('B'))+','+ str(opponents[0].getPieceValue('Q')) )
         else:
             self.saveWinners([opponents[1]])
+            print('player 2 won'  + str(opponents[1].getPieceValue('R')) +','+ str(opponents[1].getPieceValue('N')) +','+ str(opponents[1].getPieceValue('B'))+','+ str(opponents[1].getPieceValue('Q')))
         return
 
     def playChessMatch(self, opponents, calcDepth = 3, playerOneWhite = True):
@@ -120,8 +123,8 @@ class Tournament(object):
             whitePlayer = opponents[0]
             blackPlayer = opponents[1]
         else:
-            whitePlayer = opponents[0]
-            blackPlayer = opponents[1]
+            whitePlayer = opponents[1]
+            blackPlayer = opponents[0]
 
         #MAIN LOOP
         while(True):
