@@ -21,7 +21,7 @@ class Tournament(object):
         self.tournamentWinners = []
         oldGenAmount = len(oldGenes)
 
-        playerGenes = self.initializeNewGenes(amount=(oldGenAmount-wantedGenesCount), variance=0.3)
+        playerGenes = self.initializeNewGenes(amount=(wantedGenesCount-oldGenAmount), variance=0.3)
         playerGenes.extend(oldGenes)
 
         opponents = self.randomizeOpponents(playerGenes)
