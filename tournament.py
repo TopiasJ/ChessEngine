@@ -33,6 +33,9 @@ class Tournament(object):
         
         for process in processList:
             process.join()
+
+        
+
         #self.saveWinners(self.tournamentWinners)
         return
 
@@ -68,10 +71,11 @@ class Tournament(object):
         lines = file.readlines()
         file.close()
         for line in lines:
-            l = line.split(',')
-            gene = EvaluatorGene()
-            gene.loadValues(l[0],l[1],l[2],l[3])
-            oldies.append(gene)
+            if(line != '\n'):
+                l = line.split(',')
+                gene = EvaluatorGene()
+                gene.loadValues(l[0],l[1],l[2],l[3])
+                oldies.append(gene)
         current_time = datetime.datetime.now()
         os.rename('tournamentWinners.txt', 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt')
         return oldies
@@ -93,6 +97,8 @@ class Tournament(object):
         visualiser = Visualizer()
         alg = AlphaBeta()
         movecount = 0
+        score = 0
+
         #MAIN LOOP
         while(True):
             #WHITE TO MOVE
@@ -102,6 +108,7 @@ class Tournament(object):
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
                 if chessgame.status == chessgame.CHECKMATE:
                     print('WHITE WON!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                    score += 1
                     self.saveWinners([opponents[0]])
                     return
                     # return self.tournamentWinners.append(opponents[0])
