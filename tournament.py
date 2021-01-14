@@ -53,7 +53,7 @@ class Tournament(object):
         for process in processList:
             process.join()
         
-        tournamentWinners = self.loadOldGenes(renameOld=False)
+        tournamentWinners = self.loadOldGenes(renameOld=False, extra='betweener')
         winnerswinners = []
         amountWinnersWinners = int(len(opponents))
         amountOfothers = int(len(tournamentWinners)) - amountWinnersWinners
@@ -105,7 +105,7 @@ class Tournament(object):
         f.close()
         return
 
-    def loadOldGenes(self, renameOld = True):
+    def loadOldGenes(self, renameOld = True, extra = ''):
         oldies = []
         file  = open(self.file, "r")
         lines = file.readlines()
@@ -119,7 +119,7 @@ class Tournament(object):
                 oldies.append(gene)
         current_time = datetime.datetime.now()
         if(renameOld):
-            os.rename(self.file, 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt')
+            os.rename(self.file, 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt'+extra)
         return oldies
 
     def randomizeOpponents(self, players):
