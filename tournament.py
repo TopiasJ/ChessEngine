@@ -10,6 +10,7 @@ import os
 import random
 import os.path
 import datetime 
+import copy
 
 
 class Tournament(object):
@@ -37,11 +38,12 @@ class Tournament(object):
         
         
         tournamentWinners=self.loadOldGenes(renameOld=True)
+        twinnersCopy = copy.deepcopy(tournamentWinners)
         print('--------------------- Doing crossovers')
         self.doCrossoverAndMutation(tournamentWinners)#also saves mutated ones    
         processList = []
 
-        opponents = self.randomizeOpponents(tournamentWinners)
+        opponents = self.randomizeOpponents(twinnersCopy)
         
         print('--------------------- Winners round between ' + str(len(opponents)))
         for x in opponents:
@@ -53,8 +55,8 @@ class Tournament(object):
         
         tournamentWinners = self.loadOldGenes(renameOld=False)
         winnerswinners = []
-        amountWinnersWinners = int(len(opponents)/2)
-        amountOfothers = wantedGenesCount - amountWinnersWinners
+        amountWinnersWinners = int(len(opponents))
+        amountOfothers = int(len(tournamentWinners)) - amountWinnersWinners
         i = 1
         for winner in tournamentWinners:
             if i > amountOfothers:
@@ -186,7 +188,7 @@ class Tournament(object):
             aimove = alg.getBestmove(chessgame,calcDepth, blackPlayer)
             chessgame.apply_move(aimove)
             movecount += 1
-            visualiser.visualizeBoard(str(chessgame.board))
+            #visualiser.visualizeBoard(str(chessgame.board))
             print('move count: ' + str(movecount))
 
             if(chessgame.status == chessgame.CHECKMATE or chessgame.status == chessgame.STALEMATE):
@@ -200,7 +202,7 @@ class Tournament(object):
                     #self.saveWinners([opponents[1]])
                     #return self.tournamentWinners.append(opponents[1])
                 break
-            if(movecount > 50):
+            if(movecount > 75):
                 winner = self.getWinnerByPieceValue(chessgame.board)
                 if(playerOneWhite):
                     return winner
