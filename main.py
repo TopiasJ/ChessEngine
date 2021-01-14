@@ -57,15 +57,15 @@ def main():
         print('STALEMATE')
 
 def tournament():
-    tournament = Tournament()
-    start_time = time.time()
-    tournament.startTournament(8)
-    elapsed_time = time.time() - start_time
-    print('timeelapsed for whole tournament:' + str(elapsed_time))
+    while(True):
+        tournament = Tournament()
+        start_time = time.time()
+        tournament.startTournament(8, depth=2)
+        elapsed_time = time.time() - start_time
+        print('timeelapsed for whole tournament:' + str(elapsed_time))
 
 
 def test():
-    
     chessgame = Game('8/8/k7/2K5/8/8/8/1R6 w - - 0 1') ##white mate 5?
     #chessgame = Game('k7/2K5/8/8/8/8/8/1R6 w - - 0 1') ##white mate 1
     #chessgame = Game('8/k7/2K5/8/8/8/8/1R6 w - - 0 1')

@@ -13,13 +13,13 @@ import datetime
 
 
 class Tournament(object):
-    tournamentWinners = []
-    
-    def startTournament(self, wantedGenesCount, depth = 3):
+    file = 'tournamentWinners.txt'
+    def startTournament(self, wantedGenesCount, depth):
         oldGenes=self.loadOldGenes()
         processList = []
-        self.tournamentWinners = []
+        tournamentWinners = []
         oldGenAmount = len(oldGenes)
+        print('amount before tournament:' + str(oldGenAmount))
 
         playerGenes = self.initializeNewGenes(amount=(wantedGenesCount-oldGenAmount), variance=0.3)
         playerGenes.extend(oldGenes)
@@ -34,11 +34,48 @@ class Tournament(object):
         
         for process in processList:
             process.join()
+        
+        
+        tournamentWinners=self.loadOldGenes(renameOld=True)
+        print('--------------------- Doing crossovers')
+        self.doCrossoverAndMutation(tournamentWinners)#also saves mutated ones    
+        processList = []
 
+        opponents = self.randomizeOpponents(tournamentWinners)
+        
+        print('--------------------- Winners round between ' + str(len(opponents)))
+        for x in opponents:
+            p = Process(target=self.playBestOfMatch, args=(x,depth,))
+            processList.append(p)
+            p.start()
+        for process in processList:
+            process.join()
+        
+        tournamentWinners = self.loadOldGenes(renameOld=False)
+        winnerswinners = []
+        amountWinnersWinners = int(len(opponents)/2)
+        amountOfothers = wantedGenesCount - amountWinnersWinners
+        i = 1
+        for winner in tournamentWinners:
+            if i > amountOfothers:
+                winnerswinners.append(winner)
+            i +=1
+        self.doCrossoverAndMutation(winnerswinners)
+        return
+
+    def doCrossoverAndMutation(self, winnerGenes):
+        previous = None
+        for gene in winnerGenes:
+            if previous == None:
+                previous = gene
+            else:
+                othergene = gene.crossover(previous)
+                gene.mutation()
+                othergene.mutation()
+                self.saveWinners([gene,othergene])
+                previous = None
         
 
-        #self.saveWinners(self.tournamentWinners)
-        return
 
     def initializeNewGenes(self, amount, variance):
         geneList = []
@@ -60,15 +97,15 @@ class Tournament(object):
 
     def saveWinners(self, winners):
         #exists = os.path.isfile('tournamentWinners.txt')
-        f = open("tournamentWinners.txt", "a")
+        f = open(self.file, "a")
         for winner in winners:
             f.write(str(winner.getPieceValue('R')) +','+ str(winner.getPieceValue('N')) +','+ str(winner.getPieceValue('B'))+','+ str(winner.getPieceValue('Q')) + '\n' )
         f.close()
         return
 
-    def loadOldGenes(self):
+    def loadOldGenes(self, renameOld = True):
         oldies = []
-        file  = open("tournamentWinners.txt", "r")
+        file  = open(self.file, "r")
         lines = file.readlines()
         file.close()
         for line in lines:
@@ -79,7 +116,8 @@ class Tournament(object):
                 gene.loadValues(int(l[0]),int(l[1]),int(l[2]),int(l[3]))
                 oldies.append(gene)
         current_time = datetime.datetime.now()
-        os.rename('tournamentWinners.txt', 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt')
+        if(renameOld):
+            os.rename(self.file, 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt')
         return oldies
 
     def randomizeOpponents(self, players):
@@ -94,7 +132,7 @@ class Tournament(object):
                 previous = None
         return opponents
 
-    def playBestOfMatch(self, opponents, calcDepth = 3, bestOf = 3):
+    def playBestOfMatch(self, opponents, calcDepth = 3 ):
         score = 0
         ##opponent[0] as white
         score = self.playChessMatch(opponents, calcDepth, True)
