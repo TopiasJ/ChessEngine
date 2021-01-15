@@ -73,26 +73,26 @@ class EvaluatorGene(Evaluator):
             print('after crossover queen values gene 1:' + str(self.queenValue) + '-- gene2:' + str(anotherGene.queenValue) )
         return anotherGene
     
-    def mutation(self, mutationChance = 0.10):
+    def mutation(self, mutationChance = 0.10,variance = 0.3):
         rando = random.randint(0, 100)
-        doMutation = rando <= mutationChance*100 #chance 25% by default
+        doMutation = rando <= mutationChance*100 #chance 10% by default
         if doMutation:
             whatToMutate = random.randint(1,4)
             if whatToMutate == 1:
                 originalValue = self.rookValue
-                self.rookValue = random.randint(originalValue - int(originalValue/2), originalValue+ int(originalValue*2))
+                self.rookValue = random.randint(originalValue - int(originalValue*variance), originalValue+ int(originalValue*variance))
                 print('doing mutation for rook:' + str(originalValue) + ' --- mutatedvalue: ' + str(self.rookValue))
             elif whatToMutate == 2:
                 originalValue = self.knighValue
-                self.knighValue = random.randint(originalValue - int(originalValue/2), originalValue+ int(originalValue*2))
+                self.knighValue = random.randint(originalValue - int(originalValue*variance), originalValue+ int(originalValue*variance))
                 print('doing mutation for knight:' + str(originalValue) + ' --- mutatedvalue: ' + str(self.knighValue))
             elif whatToMutate == 3:
                 originalValue = self.bishopValue
-                self.bishopValue = random.randint(originalValue - int(originalValue/2), originalValue+ int(originalValue*2))
+                self.bishopValue = random.randint(originalValue - int(originalValue*variance), originalValue+ int(originalValue*variance))
                 print('doing mutation for bishop:' + str(originalValue) + ' --- mutatedvalue: ' + str(self.bishopValue))
             else:
                 originalValue = self.queenValue
-                self.queenValue = random.randint(originalValue - int(originalValue/2), originalValue+ int(originalValue*2))
+                self.queenValue = random.randint(originalValue - int(originalValue*variance), originalValue+ int(originalValue*variance))
                 print('doing mutation for queen:' + str(originalValue) + ' --- mutatedvalue: ' + str(self.queenValue))
 
         return

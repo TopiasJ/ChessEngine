@@ -37,36 +37,25 @@ class Tournament(object):
             process.join()
         
         
-        tournamentWinners=self.loadOldGenes(renameOld=True)
-        twinnersCopy = copy.deepcopy(tournamentWinners)
-        print('--------------------- Doing crossovers')
-        self.doCrossoverAndMutation(tournamentWinners)#also saves mutated ones    
+        tournamentWinners=self.loadOldGenes(renameOld=False)    
         processList = []
-
-        opponents = self.randomizeOpponents(twinnersCopy)
+        opponents = self.randomizeOpponents(tournamentWinners)
         
-        print('--------------------- Winners round between ' + str(len(opponents)))
+        print('--------------------- Winners round between ' + str(len(opponents)*2))
         for x in opponents:
-            p = Process(target=self.playBestOfMatch, args=(x,depth,))
+            p = Process(target=self.playBestOfMatch, args=(x,depth))
             processList.append(p)
             p.start()
         for process in processList:
             process.join()
         
-        tournamentWinners = self.loadOldGenes(renameOld=False, extra='betweener')
-        winnerswinners = []
-        amountWinnersWinners = int(len(opponents))
-        amountOfothers = int(len(tournamentWinners)) - amountWinnersWinners
-        i = 1
-        for winner in tournamentWinners:
-            if i > amountOfothers:
-                winnerswinners.append(winner)
-            i +=1
-        self.doCrossoverAndMutation(winnerswinners)
+        tournamentWinners = self.loadOldGenes(renameOld=True, extra='.tournamentdump')
+        self.doCrossoverAndMutation(tournamentWinners,wantedGenesCount)
         return
 
-    def doCrossoverAndMutation(self, winnerGenes):
+    def doCrossoverAndMutation(self, winnerGenes, wantedGenesCount):
         previous = None
+        currentGeneCount = 0
         for gene in winnerGenes:
             if previous == None:
                 previous = gene
@@ -76,7 +65,16 @@ class Tournament(object):
                 othergene.mutation()
                 self.saveWinners([gene,othergene])
                 previous = None
-        
+                currentGeneCount += 2
+        while(currentGeneCount < wantedGenesCount):
+            random.shuffle(winnerGenes)
+            gene1 = copy.deepcopy(winnerGenes[0])
+            gene2 = copy.deepcopy(winnerGenes[1])
+            gene2 = gene1.crossover(gene2)
+            gene1.mutation()
+            gene2.mutation()
+            self.saveWinners([gene1,gene2])
+            currentGeneCount += 2
 
 
     def initializeNewGenes(self, amount, variance):
@@ -119,7 +117,7 @@ class Tournament(object):
                 oldies.append(gene)
         current_time = datetime.datetime.now()
         if(renameOld):
-            os.rename(self.file, 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) + '.txt'+extra)
+            os.rename(self.file, 'tournamentWinners-' + str(current_time.day) +'-' + str(current_time.hour) +'-'+str(current_time.minute) +extra+ '.txt')
         return oldies
 
     def randomizeOpponents(self, players):
